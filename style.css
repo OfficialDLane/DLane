@@ -344,7 +344,7 @@ body {
 
 .table-scroll {
   overflow-y: auto;
-  height: calc(100% - 25px); /* Leave room for footer */
+  height: calc(100% - 45px); /* Leave room for footer */
 }
 
 .resource-table {
@@ -378,6 +378,22 @@ body {
   color: white;
 }
 .resource-table tr.selected td { color: white; }
+
+/* ========================================== 
+   No Results Row (Fixed Missing CSS)
+========================================== */
+.no-results-row {
+  background-color: #1e1e1e;
+  color: #666;
+}
+
+.no-results-row td {
+  text-align: center;
+  padding: 20px !important;
+  color: #666;
+  font-style: italic;
+  border-bottom: 1px solid #2a2a2a;
+}
 
 /* Bottom Bar Elements */
 .table-footer {
