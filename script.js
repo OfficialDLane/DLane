@@ -44,10 +44,27 @@ const btnAddSong = document.getElementById("btn-add-song");
 const btnEditSong = document.getElementById("btn-edit-song");
 const btnDeleteSong = document.getElementById("btn-delete-song");
 
+// Live Customization Controls
+const liveFontSize = document.getElementById('live-font-size');
+const liveFontDisplay = document.getElementById('live-font-display');
+const liveTextColor = document.getElementById('live-text-color');
+const liveBgColor = document.getElementById('live-bg-color');
+const liveFadeEffect = document.getElementById('live-fade-effect');
+const verseNumbering = document.getElementById('verse-numbering');
+const btnResetDisplay = document.getElementById('btn-reset-display');
+
 // State Management
 let currentPreviewContent = "";
 let selectedSong = null;
 let currentCategory = "songs";
+let verseCounter = 0;
+let liveSettings = {
+  fontSize: 24,
+  textColor: '#ffffff',
+  bgColor: '#000000',
+  fadeEffect: 'none',
+  verseMode: 'off'
+};
 
 // Helper function to get proper button labels based on category
 function getButtonLabel(action, category) {
@@ -169,18 +186,104 @@ function updateButtonLabels(category) {
   }
 }
 
+// ========================================
+// LIVE OUTPUT CUSTOMIZATION FUNCTIONS
+// ========================================
+
+function applyLiveSettings() {
+  liveScreen.style.fontSize = liveSettings.fontSize + 'px';
+  liveScreen.style.color = liveSettings.textColor;
+  liveScreen.style.backgroundColor = liveSettings.bgColor;
+}
+
+// Font Size Control
+liveFontSize.addEventListener('input', (e) => {
+  liveSettings.fontSize = parseInt(e.target.value);
+  liveFontDisplay.innerText = liveSettings.fontSize + 'px';
+  applyLiveSettings();
+});
+
+// Text Color Control
+liveTextColor.addEventListener('change', (e) => {
+  liveSettings.textColor = e.target.value;
+  applyLiveSettings();
+});
+
+// Background Color Control
+liveBgColor.addEventListener('change', (e) => {
+  liveSettings.bgColor = e.target.value;
+  applyLiveSettings();
+});
+
+// Fade Effect Control
+liveFadeEffect.addEventListener('change', (e) => {
+  liveSettings.fadeEffect = e.target.value;
+});
+
+// Verse Numbering Control
+verseNumbering.addEventListener('change', (e) => {
+  liveSettings.verseMode = e.target.value;
+  verseCounter = 0; // Reset counter when switching modes
+});
+
+// Reset Display Button
+btnResetDisplay.addEventListener('click', () => {
+  liveSettings.fontSize = 24;
+  liveSettings.textColor = '#ffffff';
+  liveSettings.bgColor = '#000000';
+  liveSettings.fadeEffect = 'none';
+  liveSettings.verseMode = 'off';
+  
+  liveFontSize.value = 24;
+  liveFontDisplay.innerText = '24px';
+  liveTextColor.value = '#ffffff';
+  liveBgColor.value = '#000000';
+  liveFadeEffect.value = 'none';
+  verseNumbering.value = 'off';
+  verseCounter = 0;
+  
+  applyLiveSettings();
+});
+
+// Function to format content with verse numbers
+function formatContentWithVerse(content) {
+  if (liveSettings.verseMode === 'off') {
+    return content;
+  }
+  
+  let prefix = '';
+  if (liveSettings.verseMode === 'verse') {
+    verseCounter++;
+    prefix = `[Verse ${verseCounter}]\n`;
+  } else if (liveSettings.verseMode === 'slide') {
+    verseCounter++;
+    prefix = `[Slide ${verseCounter}]\n`;
+  }
+  
+  return prefix + content;
+}
+
 // Broadcast Controls Logic
 btnGoLive.addEventListener('click', () => {
   if (currentPreviewContent) {
-    liveScreen.innerText = currentPreviewContent;
-    liveScreen.style.backgroundColor = "#5e0000"; // Red tint for LIVE
-    liveScreen.style.color = "#fff";
+    let displayContent = formatContentWithVerse(currentPreviewContent);
+    liveScreen.innerText = displayContent;
+    
+    applyLiveSettings();
+    
+    // Apply fade effect if selected
+    if (liveSettings.fadeEffect === 'fade') {
+      liveScreen.classList.remove('fade-in');
+      void liveScreen.offsetWidth; // Trigger reflow
+      liveScreen.classList.add('fade-in');
+    }
   }
 });
 
 btnBlack.addEventListener('click', () => {
   liveScreen.innerText = "";
   liveScreen.style.backgroundColor = "#000";
+  verseCounter = 0;
 });
 
 // Reset the Live Screen completely when Clear is clicked
@@ -188,6 +291,7 @@ btnClear.addEventListener("click", () => {
     liveScreen.innerText = "";
     liveScreen.style.backgroundColor = "#000";
     liveScreen.style.color = "#fff";
+    verseCounter = 0;
 });
 
 // Live System Clock Loop
@@ -322,6 +426,7 @@ btnDeleteSong.addEventListener("click", () => {
         liveScreen.style.color = "#fff";
 
         currentPreviewContent = "";
+        verseCounter = 0;
 
         loadCategoryData(currentCategory);
     }
