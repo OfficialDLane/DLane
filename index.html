@@ -70,6 +70,43 @@
             <div id="live-screen" class="display-screen">
             </div>
           </div>
+          <!-- Live Customization Panel -->
+          <div class="live-customization">
+            <div class="customize-group">
+              <label>Size:</label>
+              <input type="range" id="live-font-size" min="12" max="48" value="24" title="Font Size">
+              <span class="customize-display" id="live-font-display">24px</span>
+            </div>
+            
+            <div class="customize-group">
+              <label>Color:</label>
+              <input type="color" id="live-text-color" value="#ffffff" title="Text Color">
+            </div>
+
+            <div class="customize-group">
+              <label>BG:</label>
+              <input type="color" id="live-bg-color" value="#000000" title="Background Color">
+            </div>
+
+            <div class="customize-group">
+              <label>Fade:</label>
+              <select id="live-fade-effect">
+                <option value="none">None</option>
+                <option value="fade">Fade</option>
+              </select>
+            </div>
+
+            <div class="customize-group">
+              <label>Verse:</label>
+              <select id="verse-numbering">
+                <option value="off">Off</option>
+                <option value="verse">Verse</option>
+                <option value="slide">Slide #</option>
+              </select>
+            </div>
+
+            <button class="btn-reset-display" id="btn-reset-display">↺ Reset</button>
+          </div>
         </div>
       </div>
 
