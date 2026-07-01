@@ -2,17 +2,25 @@
 const resourceDatabase = {
   songs: [
     { title: "Amazing Grace", author: "John Newton", copyright: "Public Domain", content: "Amazing grace! How sweet the sound\nThat saved a wretch like me!\nI once was lost, but now am found;\nWas blind, but now I see." },
-    { title: "10,000 Reasons", author: "Matt Redman", copyright: "Atlas Music", content: "Bless the Lord, O my soul\nO my soul\nWorship His holy name\nSing like never before" },
-    { title: "How Great Thou Art", author: "Stuart K. Hine", copyright: "Manna Music", content: "O Lord my God, When I in awesome wonder,\nConsider all the worlds Thy Hands have made;\nI see the stars, I hear the rolling thunder,\nThy power throughout the universe displayed." }
+    { title: "10,000 Reasons", author: "Matt Redman", copyright: "Atlas Music", content: "Bless the Lord, O my soul\nO my soul\nWorship His holy name\nSing like never before\nO my soul, on this mountainous day\nAs I sing out my praise" },
+    { title: "How Great Thou Art", author: "Stuart K. Hine", copyright: "Manna Music", content: "O Lord my God, When I in awesome wonder,\nConsider all the worlds Thy Hands have made;\nI see the stars, I hear the rolling thunder,\nThy power throughout the universe displayed!" }
   ],
   scriptures: [
     { title: "Genesis 1:1", author: "Moses", copyright: "Public Domain", content: "In the beginning God created the heaven and the earth." },
     { title: "John 3:16", author: "John", copyright: "Public Domain", content: "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life." }
   ],
-  media: [],
-  presentations: [],
+  media: [
+    { title: "Welcome Slide", author: "Admin", copyright: "2026", content: "[Media: Welcome Banner Image]" },
+    { title: "Hymn Background", author: "Admin", copyright: "2026", content: "[Media: Classical Hymn Background Video]" }
+  ],
+  presentations: [
+    { title: "Sunday Service 2026", author: "Worship Team", copyright: "2026", content: "[Presentation: Multi-slide service flow]" },
+    { title: "Easter Special", author: "Events Team", copyright: "2026", content: "[Presentation: Easter celebration slides]" }
+  ],
   themes: [
-    { title: "Default Dark Theme", author: "System", copyright: "2026", content: "[Theme Applied]" }
+    { title: "Default Dark Theme", author: "System", copyright: "2026", content: "[Theme Applied: Dark Blue]" },
+    { title: "Light Theme", author: "System", copyright: "2026", content: "[Theme Applied: Light Gray]" },
+    { title: "Christmas Theme", author: "System", copyright: "2026", content: "[Theme Applied: Red & Gold]" }
   ]
 };
 
@@ -40,6 +48,30 @@ const btnDeleteSong = document.getElementById("btn-delete-song");
 let currentPreviewContent = "";
 let selectedSong = null;
 let currentCategory = "songs";
+
+// Helper function to get proper button labels based on category
+function getButtonLabel(action, category) {
+  const categoryLabels = {
+    songs: { add: "➕ Add Song", edit: "✏ Edit Song", delete: "🗑 Delete Song" },
+    scriptures: { add: "➕ Add Scripture", edit: "✏ Edit Scripture", delete: "🗑 Delete Scripture" },
+    media: { add: "➕ Add Media", edit: "✏ Edit Media", delete: "🗑 Delete Media" },
+    presentations: { add: "➕ Add Presentation", edit: "✏ Edit Presentation", delete: "🗑 Delete Presentation" },
+    themes: { add: "➕ Add Theme", edit: "✏ Edit Theme", delete: "🗑 Delete Theme" }
+  };
+  return categoryLabels[category]?.[action] || `${action} Item`;
+}
+
+// Helper function to get proper prompt labels based on category
+function getPromptLabels(category) {
+  const labels = {
+    songs: { title: "Song Title", author: "Artist/Composer", copyright: "Copyright Info", content: "Lyrics" },
+    scriptures: { title: "Scripture Reference", author: "Book/Author", copyright: "Version", content: "Scripture Text" },
+    media: { title: "Media Name", author: "Creator", copyright: "Copyright Info", content: "Description" },
+    presentations: { title: "Presentation Title", author: "Author", copyright: "Copyright Info", content: "Description" },
+    themes: { title: "Theme Name", author: "Designer", copyright: "Version", content: "Theme Description" }
+  };
+  return labels[category] || labels.songs;
+}
 
 // Function to handle database view updates
 function loadCategoryData(category, selectItem = null) {
@@ -109,9 +141,33 @@ tabButtons.forEach(button => {
     selectedSong = null;
     if (searchInput) searchInput.value = "";
 
-    loadCategoryData(e.target.getAttribute('data-tab'));
+    const category = e.target.getAttribute('data-tab');
+    loadCategoryData(category);
+    
+    // Update button labels dynamically based on selected tab
+    updateButtonLabels(category);
   });
 });
+
+// Update button labels based on current category
+function updateButtonLabels(category) {
+  const isReadOnly = category === "themes";
+  
+  // Disable/Enable buttons if needed (themes are read-only)
+  btnAddSong.disabled = isReadOnly;
+  btnEditSong.disabled = isReadOnly;
+  btnDeleteSong.disabled = isReadOnly;
+  
+  if (isReadOnly) {
+    btnAddSong.style.opacity = "0.5";
+    btnEditSong.style.opacity = "0.5";
+    btnDeleteSong.style.opacity = "0.5";
+  } else {
+    btnAddSong.style.opacity = "1";
+    btnEditSong.style.opacity = "1";
+    btnDeleteSong.style.opacity = "1";
+  }
+}
 
 // Broadcast Controls Logic
 btnGoLive.addEventListener('click', () => {
@@ -141,7 +197,7 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 
-// Search Songs with dynamic "No items found" feedback row
+// Search functionality with dynamic "No items found" feedback
 searchInput.addEventListener("keyup", () => {
     const keyword = searchInput.value.toLowerCase();
     const rows = tableBody.querySelectorAll("tr:not(.no-results-row)");
@@ -169,25 +225,27 @@ searchInput.addEventListener("keyup", () => {
     }
 });
 
-// Add Song (Refactored to use generic 'newItem')
+// Generic Add Item Handler (works for all categories)
 btnAddSong.addEventListener("click", () => {
     if (currentCategory === "themes") {
         alert("Themes directory is read-only.");
         return;
     }
 
-    const title = prompt("Song Title");
+    const labels = getPromptLabels(currentCategory);
+    
+    const title = prompt(labels.title);
     if(!title) return;
 
-    const author = prompt("Author") || "";
-    const copyright = prompt("Copyright") || "";
-    const lyrics = prompt("Lyrics") || "";
+    const author = prompt(labels.author) || "";
+    const copyright = prompt(labels.copyright) || "";
+    const content = prompt(labels.content) || "";
 
     const newItem = {
         title,
         author,
         copyright,
-        content: lyrics
+        content
     };
 
     resourceDatabase[currentCategory].push(newItem);
@@ -197,7 +255,7 @@ btnAddSong.addEventListener("click", () => {
     searchInput.value = ""; 
 });
 
-// Edit Song
+// Generic Edit Item Handler (works for all categories)
 btnEditSong.addEventListener("click", () => {
     if (currentCategory === "themes") {
         alert("Themes directory is read-only.");
@@ -209,22 +267,24 @@ btnEditSong.addEventListener("click", () => {
         return;
     }
 
-    const newTitle = prompt("Title", selectedSong.title);
+    const labels = getPromptLabels(currentCategory);
+
+    const newTitle = prompt(labels.title, selectedSong.title);
     if(newTitle !== null){
         selectedSong.title = newTitle;
     }
 
-    const newAuthor = prompt("Author", selectedSong.author);
+    const newAuthor = prompt(labels.author, selectedSong.author);
     if(newAuthor !== null){
         selectedSong.author = newAuthor;
     }
 
-    const newCopyright = prompt("Copyright", selectedSong.copyright);
+    const newCopyright = prompt(labels.copyright, selectedSong.copyright);
     if(newCopyright !== null){
         selectedSong.copyright = newCopyright;
     }
 
-    const newContent = prompt("Lyrics", selectedSong.content);
+    const newContent = prompt(labels.content, selectedSong.content);
     if(newContent !== null){
         selectedSong.content = newContent;
     }
@@ -232,7 +292,7 @@ btnEditSong.addEventListener("click", () => {
     loadCategoryData(currentCategory, selectedSong);
 });
 
-// Delete Song (Finished with complete slate clearing and cache removal)
+// Generic Delete Item Handler (works for all categories)
 btnDeleteSong.addEventListener("click", () => {
     if (currentCategory === "themes") {
         alert("Themes directory is read-only.");
@@ -270,5 +330,6 @@ btnDeleteSong.addEventListener("click", () => {
 // Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
   loadCategoryData('songs');
+  updateButtonLabels('songs');
   updateClock();
 });
