@@ -529,3 +529,40 @@ body {
 .btn-reset-display:active {
   background: linear-gradient(to bottom, #2f2f2f, #1f1f1f);
 }
+
+/* Slides Selection Tray */
+.slides-tray {
+  height: 120px;
+  max-height: 120px;
+  overflow-y: auto;
+  border-bottom: 1px solid #1a1a1a;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.slide-thumb {
+  background-color: #222;
+  border: 1px solid #444;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: #ccc;
+  cursor: pointer;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slide-thumb:hover {
+  background-color: #2a2a2a;
+  border-color: #666;
+}
+
+.slide-thumb.active-slide {
+  background-color: #002b5e;
+  border-color: #0078d7;
+  color: #fff;
+  font-weight: bold;
+}
