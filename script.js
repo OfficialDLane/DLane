@@ -536,6 +536,11 @@ document.getElementById('modal-btn-save').addEventListener('click', () => {
     resourceDatabase[currentCategory].push({ title, author, copyright: "Custom", content });
   }
 
+  // --- ADD THIS LINE ---
+  localStorage.setItem('worshipAppDB', JSON.stringify(resourceDatabase));
+
   document.getElementById('resource-modal').style.display = 'none';
   loadCategoryData(currentCategory);
 });
+
+
