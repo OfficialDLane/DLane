@@ -357,6 +357,12 @@ btnDeleteSong.addEventListener("click", () => {
             resourceDatabase[currentCategory].filter(item => item !== selectedSong);
 
         selectedSong = null;
+      // ... inside your if(confirm("Delete this item?")){ block
+
+// --- ADD THIS LINE ---
+localStorage.setItem('worshipAppDB', JSON.stringify(resourceDatabase));
+
+// ... (rest of your UI reset code)
 
         // Restore Previews and Live backgrounds securely to pure black slate state
         previewScreen.innerText = "Select an item to preview...";
@@ -378,9 +384,15 @@ btnDeleteSong.addEventListener("click", () => {
 
 // Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
-  loadCategoryData('songs');
-  updateButtonLabels('songs');
-  updateClock();
+    // Check for saved data and overwrite defaults if it exists
+    const savedData = localStorage.getItem('worshipAppDB');
+    if (savedData) {
+        Object.assign(resourceDatabase, JSON.parse(savedData));
+    }
+    
+    loadCategoryData('songs');
+    updateButtonLabels('songs');
+    updateClock();
 });
 
 // ========================================
