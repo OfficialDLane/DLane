@@ -338,72 +338,7 @@ searchInput.addEventListener("keyup", () => {
     }
 });
 
-// Generic Add Item Handler (works for all categories)
-btnAddSong.addEventListener("click", () => {
-    if (currentCategory === "themes") {
-        alert("Themes directory is read-only.");
-        return;
-    }
 
-    const labels = getPromptLabels(currentCategory);
-    
-    const title = prompt(labels.title);
-    if(!title) return;
-
-    const author = prompt(labels.author) || "";
-    const copyright = prompt(labels.copyright) || "";
-    const content = prompt(labels.content) || "";
-
-    const newItem = {
-        title,
-        author,
-        copyright,
-        content
-    };
-
-    resourceDatabase[currentCategory].push(newItem);
-
-    // Reload layout and target the new item for automatic focus configuration
-    loadCategoryData(currentCategory, newItem);
-    searchInput.value = ""; 
-});
-
-// Generic Edit Item Handler (works for all categories)
-btnEditSong.addEventListener("click", () => {
-    if (currentCategory === "themes") {
-        alert("Themes directory is read-only.");
-        return;
-    }
-
-    if(selectedSong == null){
-        alert("Please select an item.");
-        return;
-    }
-
-    const labels = getPromptLabels(currentCategory);
-
-    const newTitle = prompt(labels.title, selectedSong.title);
-    if(newTitle !== null){
-        selectedSong.title = newTitle;
-    }
-
-    const newAuthor = prompt(labels.author, selectedSong.author);
-    if(newAuthor !== null){
-        selectedSong.author = newAuthor;
-    }
-
-    const newCopyright = prompt(labels.copyright, selectedSong.copyright);
-    if(newCopyright !== null){
-        selectedSong.copyright = newCopyright;
-    }
-
-    const newContent = prompt(labels.content, selectedSong.content);
-    if(newContent !== null){
-        selectedSong.content = newContent;
-    }
-
-    loadCategoryData(currentCategory, selectedSong);
-});
 
 // Generic Delete Item Handler (works for all categories)
 btnDeleteSong.addEventListener("click", () => {
@@ -522,4 +457,73 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     if (btnGoLive) btnGoLive.click();
   }
+});
+
+// Generic Add Item Handler
+btnAddSong.addEventListener("click", () => {
+    if (currentCategory === "themes") {
+        alert("Themes directory is read-only.");
+        return;
+    }
+    // Call the modal with 'add' mode
+    openModal('add');
+});
+
+// Generic Edit Item Handler
+btnEditSong.addEventListener("click", () => {
+    if (currentCategory === "themes") {
+        alert("Themes directory is read-only.");
+        return;
+    }
+    if (selectedSong == null) {
+        alert("Please select an item first.");
+        return;
+    }
+    // Call the modal with 'edit' mode and pass the selected song
+    openModal('edit', selectedSong);
+});
+
+// --- Modal Logic ---
+let isEditing = false;
+let editTarget = null;
+
+function openModal(mode, item = null) {
+  isEditing = (mode === 'edit');
+  editTarget = item;
+  const modal = document.getElementById('resource-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    // Clear or pre-fill inputs
+    document.getElementById('modal-input-title').value = isEditing ? item.title : '';
+    document.getElementById('modal-input-author').value = isEditing ? item.author : '';
+    document.getElementById('modal-input-content').value = isEditing ? item.content : '';
+  }
+}
+
+// Close Button Handler
+document.getElementById('modal-btn-cancel').onclick = () => {
+  document.getElementById('resource-modal').style.display = 'none';
+};
+
+// Save Button Handler
+document.getElementById('modal-btn-save').addEventListener('click', () => {
+  const title = document.getElementById('modal-input-title').value.trim();
+  const author = document.getElementById('modal-input-author').value.trim();
+  const content = document.getElementById('modal-input-content').value.trim();
+
+  if (!title) {
+    alert("Please enter a title.");
+    return;
+  }
+
+  if (isEditing && editTarget) {
+    editTarget.title = title;
+    editTarget.author = author;
+    editTarget.content = content;
+  } else {
+    resourceDatabase[currentCategory].push({ title, author, copyright: "Custom", content });
+  }
+
+  document.getElementById('resource-modal').style.display = 'none';
+  loadCategoryData(currentCategory);
 });
