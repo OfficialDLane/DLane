@@ -181,6 +181,47 @@
 
     </main>
   </div>
+
+  </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- CUSTOM MODAL EDITOR OVERLAY                -->
+    <!-- ========================================== -->
+    <div id="resource-modal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 id="modal-title">Add New Item</h3>
+          <button id="modal-close-x" class="btn-icon">×</button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="input-group">
+            <label for="modal-input-title">Title</label>
+            <input type="text" id="modal-input-title" placeholder="e.g., Amazing Grace">
+          </div>
+          
+          <div class="input-group">
+            <label for="modal-input-author">Author / Reference</label>
+            <input type="text" id="modal-input-author" placeholder="e.g., John Newton">
+          </div>
+
+          <div class="input-group">
+            <label for="modal-input-content">Lyrics / Content (Leave a blank line between slides)</label>
+            <textarea id="modal-input-content" rows="8" placeholder="Type lyrics here... Hit Enter twice to split into a new slide."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="modal-btn-cancel" class="btn-secondary">Cancel</button>
+          <button id="modal-btn-save" class="btn-primary">Save to Database</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
   <script src="script.js"></script>
 </body>
 </html>
