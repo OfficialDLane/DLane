@@ -54,15 +54,22 @@
         </div>
 
         <div class="panel preview-panel">
-          <div class="panel-header">Preview</div>
-          <div class="preview-main empty-dark screen-container">
-            <div id="preview-screen" class="display-screen">Select a song to preview...</div>
-          </div>
-          <div class="panel-header sub-header">Preview Output</div>
-          <div class="preview-output empty-dark">
-            <div class="mini-screen" id="mini-preview"></div>
-          </div>
-        </div>
+  <div class="panel-header">Preview</div>
+  <div class="preview-main empty-dark screen-container">
+    <div id="preview-screen" class="display-screen">Select a song to preview...</div>
+  </div>
+  
+  <!-- NEW: Slide selection tray -->
+  <div class="panel-header sub-header">Slides (Click or use Up/Down Arrows)</div>
+  <div class="slides-tray empty-dark" id="preview-slides-tray">
+    <!-- Individual slides will be generated here dynamically by JavaScript -->
+  </div>
+
+  <div class="panel-header sub-header">Preview Output</div>
+  <div class="preview-output empty-dark">
+    <div class="mini-screen" id="mini-preview"></div>
+  </div>
+</div>
 
         <div class="panel live-panel">
           <div class="panel-header live-header">Live Output</div>
