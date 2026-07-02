@@ -63,12 +63,17 @@ let liveSettings = {
   textColor: '#ffffff',
   bgColor: '#000000',
   fadeEffect: 'none',
-  verseMode: 'off'
-};
-
+66      verseMode: 'off'
+67    };
+68    
+69    let currentSlidesArray = [];
+70    let currentSlideIndex = 0;
+71    
+72    // Helper function to get proper button labels based on category
+73    function getButtonLabel(action, category) {
 // Helper function to get proper button labels based on category
 function getButtonLabel(action, category) {
-  const categoryLabels = {
+
     songs: { add: "➕ Add Song", edit: "✏ Edit Song", delete: "🗑 Delete Song" },
     scriptures: { add: "➕ Add Scripture", edit: "✏ Edit Scripture", delete: "🗑 Delete Scripture" },
     media: { add: "➕ Add Media", edit: "✏ Edit Media", delete: "🗑 Delete Media" },
@@ -123,7 +128,7 @@ function loadCategoryData(category, selectItem = null) {
       miniPreview.style.backgroundColor = "#002b5e";
     }
     
-    // Interactive Selection Logic
+   // Interactive Selection Logic
     row.addEventListener('click', () => {
       // Remove selection from all rows
       document.querySelectorAll('#table-body tr').forEach(r => r.classList.remove('selected'));
@@ -131,12 +136,16 @@ function loadCategoryData(category, selectItem = null) {
       
       selectedSong = item;
       
-      // Route content to preview screens
-      currentPreviewContent = item.content;
-      previewScreen.innerText = item.content;
-      miniPreview.innerText = item.content;
-      previewScreen.style.backgroundColor = "#002b5e"; // Visual cue it's ready
-      miniPreview.style.backgroundColor = "#002b5e";
+      // Split lyrics into multiple slides wherever there is a blank line (\n\n)
+      if (item.content) {
+        currentSlidesArray = item.content.split('\n\n');
+      } else {
+        currentSlidesArray = ["No content"];
+      }
+      
+      currentSlideIndex = 0; // Reset back to the first slide
+      renderSlidesTray();    // Build the visual slide deck thumbnails
+      displaySlide(currentSlideIndex); // Preview the first slide immediately
     });
     
     tableBody.appendChild(row);
@@ -437,4 +446,80 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCategoryData('songs');
   updateButtonLabels('songs');
   updateClock();
+});
+
+// ========================================
+// MULTI-SLIDE SYSTEM ENGINE FUNCTIONS
+// ========================================
+
+// Render thumbnails for each slide segment
+function renderSlidesTray() {
+  const tray = document.getElementById('preview-slides-tray');
+  if (!tray) return;
+  tray.innerHTML = '';
+  
+  currentSlidesArray.forEach((slideText, index) => {
+    const thumb = document.createElement('div');
+    thumb.classList.add('slide-thumb');
+    if (index === currentSlideIndex) thumb.classList.add('active-slide');
+    
+    // Create a quick label (e.g., Slide 1: First line of lyrics...)
+    thumb.innerText = `Slide ${index + 1}: ${slideText.split('\n')[0]}...`;
+    
+    thumb.addEventListener('click', () => {
+      currentSlideIndex = index;
+      displaySlide(index);
+    });
+    
+    tray.appendChild(thumb);
+  });
+}
+
+// Push a specific slide chunk to the preview container elements
+function displaySlide(index) {
+  if (currentSlidesArray.length === 0) return;
+  
+  // Highlight active thumbnail frame
+  document.querySelectorAll('.slide-thumb').forEach((t, idx) => {
+    if (idx === index) t.classList.add('active-slide');
+    else t.classList.remove('active-slide');
+  });
+  
+  const slideText = currentSlidesArray[index];
+  
+  // Update state pointer contents for the "Go Live" button to read
+  currentPreviewContent = slideText; 
+  
+  if (previewScreen) previewScreen.innerText = slideText;
+  if (miniPreview) miniPreview.innerText = slideText;
+  if (previewScreen) previewScreen.style.backgroundColor = "#002b5e";
+  if (miniPreview) miniPreview.style.backgroundColor = "#002b5e";
+}
+
+// Hook up global Keyboard Arrow Key listeners to flip slides quickly
+document.addEventListener('keydown', (e) => {
+  if (currentSlidesArray.length === 0) return;
+  
+  // Don't flip slides if user is typing inside the search box or input prompts
+  if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+    return;
+  }
+  
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (currentSlideIndex < currentSlidesArray.length - 1) {
+      currentSlideIndex++;
+      displaySlide(currentSlideIndex);
+    }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (currentSlideIndex > 0) {
+      currentSlideIndex--;
+      displaySlide(currentSlideIndex);
+    }
+  } else if (e.key === 'Enter') {
+    // Pressing Enter automatically hits "Go Live"
+    e.preventDefault();
+    if (btnGoLive) btnGoLive.click();
+  }
 });
