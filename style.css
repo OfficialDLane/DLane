@@ -664,3 +664,49 @@ body {
 .btn-primary:hover { background-color: #005a9e; }
 .btn-secondary { background-color: transparent; color: #ccc; border: 1px solid #555; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
 .btn-secondary:hover { background-color: #333; color: white; }
+
+/* ==========================================
+   Toast Notification System
+========================================== */
+.toast-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background-color: #333;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  border-left: 4px solid #0078d7;
+  opacity: 0;
+  transform: translateX(50px);
+  animation: toastIn 0.3s ease forwards;
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toast.success { border-left-color: #28a745; }
+.toast.error { border-left-color: #dc3545; }
+.toast.info { border-left-color: #0078d7; }
+
+.toast.fade-out-toast {
+  animation: toastOut 0.3s ease forwards;
+}
+
+@keyframes toastIn {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+  to { opacity: 0; transform: translateX(50px); }
+}

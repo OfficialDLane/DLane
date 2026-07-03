@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EasyWorship - Pro Interface</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='85'%3E🎵%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -207,6 +208,11 @@
           </div>
 
           <div class="input-group">
+            <label for="modal-input-copyright">Copyright</label>
+            <input type="text" id="modal-input-copyright" placeholder="e.g., Public Domain, Atlas Music">
+          </div>
+
+          <div class="input-group">
             <label for="modal-input-content">Lyrics / Content (Leave a blank line between slides)</label>
             <textarea id="modal-input-content" rows="8" placeholder="Type lyrics here... Hit Enter twice to split into a new slide."></textarea>
           </div>
@@ -218,6 +224,9 @@
         </div>
       </div>
     </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
 
   <!-- End of your main app content -->
 
