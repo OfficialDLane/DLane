@@ -63,24 +63,22 @@ let liveSettings = {
   textColor: '#ffffff',
   bgColor: '#000000',
   fadeEffect: 'none',
-66      verseMode: 'off'
-67    };
-68    
-69    let currentSlidesArray = [];
-70    let currentSlideIndex = 0;
-71    
-72    // Helper function to get proper button labels based on category
-73    function getButtonLabel(action, category) {
+  verseMode: 'off'
+};
+
+let currentSlidesArray = [];
+let currentSlideIndex = 0;
+
 // Helper function to get proper button labels based on category
 function getButtonLabel(action, category) {
-
+  const labels = {
     songs: { add: "➕ Add Song", edit: "✏ Edit Song", delete: "🗑 Delete Song" },
     scriptures: { add: "➕ Add Scripture", edit: "✏ Edit Scripture", delete: "🗑 Delete Scripture" },
     media: { add: "➕ Add Media", edit: "✏ Edit Media", delete: "🗑 Delete Media" },
     presentations: { add: "➕ Add Presentation", edit: "✏ Edit Presentation", delete: "🗑 Delete Presentation" },
     themes: { add: "➕ Add Theme", edit: "✏ Edit Theme", delete: "🗑 Delete Theme" }
   };
-  return categoryLabels[category]?.[action] || `${action} Item`;
+  return labels[category]?.[action] || `${action} Item`;
 }
 
 // Helper function to get proper prompt labels based on category
@@ -286,21 +284,44 @@ btnGoLive.addEventListener('click', () => {
       void liveScreen.offsetWidth; // Trigger reflow
       liveScreen.classList.add('fade-in');
     }
+    showToast('Sent to Live Output!', 'success');
+  } else {
+    showToast('Select an item first.', 'info');
   }
 });
 
 btnBlack.addEventListener('click', () => {
-  liveScreen.innerText = "";
-  liveScreen.style.backgroundColor = "#000";
-  verseCounter = 0;
+  // Apply fade-out effect before clearing
+  liveScreen.classList.remove('fade-in');
+  liveScreen.classList.remove('fade-out');
+  void liveScreen.offsetWidth; // Trigger reflow
+  liveScreen.classList.add('fade-out');
+  
+  setTimeout(() => {
+    liveScreen.innerText = "";
+    liveScreen.style.backgroundColor = "#000";
+    liveScreen.classList.remove('fade-out');
+    verseCounter = 0;
+  }, 800);
+  showToast('Live screen blacked out.', 'info');
 });
 
 // Reset the Live Screen completely when Clear is clicked
 btnClear.addEventListener("click", () => {
-    liveScreen.innerText = "";
-    liveScreen.style.backgroundColor = "#000";
-    liveScreen.style.color = "#fff";
-    verseCounter = 0;
+    // Apply fade-out effect before clearing
+    liveScreen.classList.remove('fade-in');
+    liveScreen.classList.remove('fade-out');
+    void liveScreen.offsetWidth;
+    liveScreen.classList.add('fade-out');
+    
+    setTimeout(() => {
+        liveScreen.innerText = "";
+        liveScreen.style.backgroundColor = "#000";
+        liveScreen.style.color = "#fff";
+        liveScreen.classList.remove('fade-out');
+        verseCounter = 0;
+    }, 800);
+    showToast('Live screen cleared.', 'info');
 });
 
 // Live System Clock Loop
@@ -343,12 +364,12 @@ searchInput.addEventListener("keyup", () => {
 // Generic Delete Item Handler (works for all categories)
 btnDeleteSong.addEventListener("click", () => {
     if (currentCategory === "themes") {
-        alert("Themes directory is read-only.");
+        showToast('Themes directory is read-only.', 'error');
         return;
     }
 
     if(selectedSong == null){
-        alert("Please select an item.");
+        showToast('Please select an item first.', 'info');
         return;
     }
 
@@ -379,8 +400,31 @@ localStorage.setItem('worshipAppDB', JSON.stringify(resourceDatabase));
         verseCounter = 0;
 
         loadCategoryData(currentCategory);
+
+        showToast('Item deleted successfully.', 'success');
     }
 });
+
+// ========================================
+// TOAST NOTIFICATION SYSTEM
+// ========================================
+function showToast(message, type = 'info', duration = 3000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  // Automatically remove after duration
+  setTimeout(() => {
+    toast.classList.add('fade-out-toast');
+    setTimeout(() => {
+      if (toast.parentNode) toast.remove();
+    }, 300);
+  }, duration);
+}
 
 // Initialize on Load
 document.addEventListener('DOMContentLoaded', () => {
@@ -474,7 +518,7 @@ document.addEventListener('keydown', (e) => {
 // Generic Add Item Handler
 btnAddSong.addEventListener("click", () => {
     if (currentCategory === "themes") {
-        alert("Themes directory is read-only.");
+        showToast('Themes directory is read-only.', 'error');
         return;
     }
     // Call the modal with 'add' mode
@@ -484,11 +528,11 @@ btnAddSong.addEventListener("click", () => {
 // Generic Edit Item Handler
 btnEditSong.addEventListener("click", () => {
     if (currentCategory === "themes") {
-        alert("Themes directory is read-only.");
+        showToast('Themes directory is read-only.', 'error');
         return;
     }
     if (selectedSong == null) {
-        alert("Please select an item first.");
+        showToast('Please select an item first.', 'info');
         return;
     }
     // Call the modal with 'edit' mode and pass the selected song
@@ -508,6 +552,7 @@ function openModal(mode, item = null) {
     // Clear or pre-fill inputs
     document.getElementById('modal-input-title').value = isEditing ? item.title : '';
     document.getElementById('modal-input-author').value = isEditing ? item.author : '';
+    document.getElementById('modal-input-copyright').value = isEditing ? item.copyright : '';
     document.getElementById('modal-input-content').value = isEditing ? item.content : '';
   }
 }
@@ -521,19 +566,21 @@ document.getElementById('modal-btn-cancel').onclick = () => {
 document.getElementById('modal-btn-save').addEventListener('click', () => {
   const title = document.getElementById('modal-input-title').value.trim();
   const author = document.getElementById('modal-input-author').value.trim();
+  const copyright = document.getElementById('modal-input-copyright').value.trim();
   const content = document.getElementById('modal-input-content').value.trim();
 
   if (!title) {
-    alert("Please enter a title.");
+    showToast('Please enter a title.', 'error');
     return;
   }
 
   if (isEditing && editTarget) {
     editTarget.title = title;
     editTarget.author = author;
+    editTarget.copyright = copyright || "Custom";
     editTarget.content = content;
   } else {
-    resourceDatabase[currentCategory].push({ title, author, copyright: "Custom", content });
+    resourceDatabase[currentCategory].push({ title, author, copyright: copyright || "Custom", content });
   }
 
   // --- ADD THIS LINE ---
@@ -541,6 +588,9 @@ document.getElementById('modal-btn-save').addEventListener('click', () => {
 
   document.getElementById('resource-modal').style.display = 'none';
   loadCategoryData(currentCategory);
+
+  const action = isEditing ? 'edited' : 'added';
+  showToast(`"${title}" ${action} successfully!`, 'success');
 });
 
 
